@@ -29,6 +29,22 @@ LeaCMF 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下�
 composer update
 ```
 
+
+## **在线演示**
+暂无
+
+用户名：admin
+密　码：123456
+
+## **界面截图**
+![1](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142040@2x.png "1")
+![2](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142120@2x.png "2")
+![3](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142138@2x.png "3")
+![4](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142205@2x.png "4")
+![5](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142218@2x.png "5")
+![6](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142907@2x.png "6")
+
+
 ## **特别鸣谢**
 
 感谢以下的项目,排名不分先后
