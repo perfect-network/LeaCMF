@@ -1,4 +1,4 @@
-TFCMF是一款基于ThinkPHP5+Bootstrap+layui的极速后台开发框架。
+leacmf是一款基于ThinkPHP5+Bootstrap+layui的极速后台开发框架。
 ===============
 
 ## **主要特性**
@@ -15,7 +15,7 @@ TFCMF是一款基于ThinkPHP5+Bootstrap+layui的极速后台开发框架。
   
   ## **安装方式**  
   
-TFCMF 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下扩展
+leacmf 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下扩展
 
 ```
 - cUR extension
@@ -38,12 +38,10 @@ composer update
 密　码：123456
 
 ## **界面截图**
-![1](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142040@2x.png "1")
-![2](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142120@2x.png "2")
-![3](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142138@2x.png "3")
-![4](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142205@2x.png "4")
-![5](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142218@2x.png "5")
-![6](https://github.com/itxpp/TFcmf/blob/master/public/uoload/image/20170519/QQ20170523-142907@2x.png "6")
+![1](/public/static/1.png "1")
+![2](/public/static/2.png "2")
+![3](/public/static/3.png "3")
+![4](/public/static/4.png "4")
 
 
 ## **特别鸣谢**
