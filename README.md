@@ -30,7 +30,7 @@ leacmf 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下�
 
 - BC Math
 ```
-使用 ` git ` 将代码clone到本地，然后运行
+使用 ` git ` 将代码clone到本地，导入数据库文件 `/data/backup/leacmf.sql` 并配置号数据库。然后运行
 
 ```
 composer update
