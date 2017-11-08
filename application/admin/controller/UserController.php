@@ -46,15 +46,6 @@ class UserController extends CommonController
 
         $list = $users->getCollection()->toArray();
         $page = $users->render();
-
-        if ($list) {
-            foreach ($list as &$val) {
-                $studyLogic              = new Study($val['id']);
-                $val['total_study_time'] = $studyLogic->getTotalStudyTime(true);
-                $val['total_study_day']  = $studyLogic->getTotalStudyDay();
-            }
-        }
-
         $this->assign('list', $list);
         $this->assign('page', $page);
         return view();

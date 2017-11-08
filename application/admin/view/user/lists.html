@@ -7,15 +7,12 @@
             <th style="width: 100px">手机号</th>
             <th>是否绑定微信</th>
             <th style="">注册时间</th>
-            <th>累计学习时间</th>
-            <th>累计学习天数</th>
             <th>账户余额</th>
             <th style="width: 120px">操作</th>
         </tr>
     </thead>
     <tbody>
         <volist name="list" id="vo">
-            <php>$temp = sec2time($vo['total_study_time']);</php>
             <tr>
                 <td>{$vo.id}</td>
                 <td>{$vo.uuid}</td>
@@ -27,8 +24,6 @@
                     {$vo.openid?'是':'否'}
                 </td>
                 <td>{$vo.register_time}</td>
-                <td>{$vo.total_study_time}</td>
-                <td>{$vo.total_study_day}</td>
                 <td>
                     <div class="text-right"><a href="{:url('balance',['id'=>$vo['id']])}" class="ajax-show text-blue" title="消费明细">{$vo.balance}</a></div>
                 </td>
