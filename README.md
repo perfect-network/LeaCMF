@@ -24,7 +24,7 @@ leacmf是一款基于ThinkPHP5+Bootstrap+layui的极速后台开发框架。
 leacmf 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下扩展
 
 ```
-- cUR extension
+- cURL extension
 
 - mbstring
 
