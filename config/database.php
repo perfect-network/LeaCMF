@@ -11,23 +11,23 @@
 
 return [
     // 数据库类型
-    'type'            => Env::get('DB_TYPE', 'mysql'),
+    'type'            => 'mysql',
     // 服务器地址
-    'hostname'        => Env::get('DB_HOST', '127.0.0.1'),
+    'hostname'        => Env::get('database.username', '127.0.0.1'),
     // 数据库名
-    'database'        => Env::get('DB_DATABASE', 'leacmf'),
+    'database'        => '',
     // 用户名
-    'username'        => Env::get('DB_USERNAME', 'root'),
+    'username'        => 'root',
     // 密码
-    'password'        => Env::get('DB_PASSWORD', '123456'),
+    'password'        => '',
     // 端口
-    'hostport'        => Env::get('DB_PORT', ''),
+    'hostport'        => '',
     // 连接dsn
     'dsn'             => '',
     // 数据库连接参数
     'params'          => [],
     // 数据库编码默认采用utf8
-    'charset'         => Env::get('DB_CHARSET', 'utf8'),
+    'charset'         => 'utf8',
     // 数据库表前缀
     'prefix'          => '',
     // 数据库调试模式

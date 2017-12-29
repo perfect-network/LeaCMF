@@ -1,8 +1,6 @@
 .idea
-.env
-*.log
-.DS_Store
-./public/uploads
-./runtime/*
 composer.lock
-
+*.log
+.DS_STORE
+.env
+thinkphp

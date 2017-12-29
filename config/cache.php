@@ -15,13 +15,11 @@
 
 return [
     // 驱动方式
-    'type'   => 'redis',
+    'type'   => 'File',
+    // 缓存保存目录
+    'path'   => '',
     // 缓存前缀
-    'prefix' => 'lea_',
+    'prefix' => '',
     // 缓存有效期 0表示永久缓存
     'expire' => 0,
-
-    'host'     => Env::get('REDIS_HOST', '127.0.0.1'),
-    'port'     => Env::get('REDIS_PASSWORD', 6379),
-    'password' => Env::get('REDIS_PORT', null),
 ];
