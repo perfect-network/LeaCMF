@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -40,6 +40,8 @@ class Resource extends RuleGroup
         $this->resource = $name;
         $this->route    = $route;
         $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
+
+        $this->setFullName();
 
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
@@ -106,11 +108,9 @@ class Resource extends RuleGroup
                 $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
             }
 
-            $item = trim(substr(trim($rule . $val[1], '/'), strlen($this->name)), '/');
-
             $option['rest'] = $key;
 
-            $this->router->rule($item, $this->route . '/' . $val[2], $val[0], $option);
+            $this->router->rule(trim($val[1], '/'), $this->route . '/' . $val[2], $val[0], $option);
         }
 
         $this->router->setGroup($group);

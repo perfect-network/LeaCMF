@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -223,13 +223,15 @@ trait Conversion
      * 转换数据集为数据集对象
      * @access public
      * @param  array|Collection $collection 数据集
+     * @param  string           $resultSetType 数据集类
      * @return Collection
      */
-    public function toCollection($collection)
+    public function toCollection($collection, $resultSetType = null)
     {
-        if ($this->resultSetType && false !== strpos($this->resultSetType, '\\')) {
-            $class      = $this->resultSetType;
-            $collection = new $class($collection);
+        $resultSetType = $resultSetType ?: $this->resultSetType;
+
+        if ($resultSetType && false !== strpos($resultSetType, '\\')) {
+            $collection = new $resultSetType($collection);
         } else {
             $collection = new ModelCollection($collection);
         }

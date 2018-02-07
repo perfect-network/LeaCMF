@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -106,7 +106,7 @@ class Cookie
 
         // 设置cookie
         if (is_array($value)) {
-            array_walk_recursive($value, $this->jsonFormatProtect, 'encode');
+            array_walk_recursive($value, [$this, 'jsonFormatProtect'], 'encode');
             $value = 'think:' . json_encode($value);
         }
 
@@ -186,7 +186,7 @@ class Cookie
             if (0 === strpos($value, 'think:')) {
                 $value = substr($value, 6);
                 $value = json_decode($value, true);
-                array_walk_recursive($value, $this->jsonFormatProtect, 'decode');
+                array_walk_recursive($value, [$this, 'jsonFormatProtect'], 'decode');
             }
         } else {
             $value = null;

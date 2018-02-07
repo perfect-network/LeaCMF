@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -409,11 +409,18 @@ abstract class Connection
      * 获取数据表字段类型
      * @access public
      * @param  string $tableName 数据表名
-     * @return array
+     * @param  string $field    字段名
+     * @return array|string
      */
-    public function getFieldsType($tableName)
+    public function getFieldsType($tableName, $field = null)
     {
-        return $this->getTableInfo($tableName, 'type');
+        $result = $this->getTableInfo($tableName, 'type');
+
+        if ($field && isset($result[$field])) {
+            return $result[$field];
+        }
+
+        return $result;
     }
 
     /**
@@ -834,7 +841,7 @@ abstract class Connection
                 $result = isset($resultSet[0]) ? $resultSet[0] : null;
             }
 
-            if (isset($cache) && false !== $result) {
+            if (isset($cache) && $result) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
             }
@@ -979,6 +986,8 @@ abstract class Connection
      * @param  bool      $replace    是否replace
      * @param  integer   $limit      每次写入数据限制
      * @return integer|string
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function insertAll(Query $query, $dataSet = [], $replace = false, $limit = null)
     {
@@ -988,24 +997,43 @@ abstract class Connection
 
         $options = $query->getOptions();
 
-        // 生成SQL语句
-        if (is_null($limit)) {
-            $sql = $this->builder->insertAll($query, $dataSet, $replace);
-        } else {
-            $array = array_chunk($dataSet, $limit, true);
-            foreach ($array as $item) {
-                $sql[] = $this->builder->insertAll($query, $item, $replace);
+        if ($limit) {
+            // 分批写入 自动启动事务支持
+            $this->startTrans();
+
+            try {
+                $array = array_chunk($dataSet, $limit, true);
+                $count = 0;
+
+                foreach ($array as $item) {
+                    $sql  = $this->builder->insertAll($query, $item, $replace);
+                    $bind = $query->getBind();
+                    if (!empty($options['fetch_sql'])) {
+                        $fetchSql[] = $this->getRealSql($sql, $bind);
+                    } else {
+                        $count += $this->execute($sql, $bind);
+                    }
+                }
+
+                // 提交事务
+                $this->commit();
+            } catch (\Exception $e) {
+                $this->rollback();
+                throw $e;
+            } catch (\Throwable $e) {
+                $this->rollback();
+                throw $e;
             }
+
+            return isset($fetchSql) ? implode(';', $fetchSql) : $count;
         }
 
+        $sql  = $this->builder->insertAll($query, $dataSet, $replace);
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
-        } elseif (is_array($sql)) {
-            // 执行操作
-            return $this->batchQuery($sql, $bind);
         } else {
             // 执行操作
             return $this->execute($sql, $bind);
@@ -1258,6 +1286,21 @@ abstract class Connection
         }
 
         return false !== $result ? $result : $default;
+    }
+
+    /**
+     * 得到某个字段的值
+     * @access public
+     * @param  Query     $query     查询对象
+     * @param  string    $aggregate 聚合方法
+     * @param  string    $field     字段名
+     * @return mixed
+     */
+    public function aggregate(Query $query, $aggregate, $field)
+    {
+        $field = $aggregate . '(' . $this->builder->parseKey($query, $field) . ') AS tp_' . strtolower($aggregate);
+
+        return $this->value($query, $field, 0);
     }
 
     /**
@@ -2015,12 +2058,18 @@ abstract class Connection
     {
         if (is_scalar($value)) {
             $data = $value;
+        } elseif (is_array($value) && isset($value[1], $value[2]) && in_array($value[1], ['=', 'eq'])) {
+            $data = $value[2];
         }
 
         if (isset($data)) {
             return 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
         } else {
-            return md5(serialize($options) . serialize($bind));
+            try {
+                return md5(serialize($options) . serialize($bind));
+            } catch (\Exception $e) {
+                return;
+            }
         }
     }
 

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -63,8 +63,7 @@ class Controller
         $this->request = Container::get('request');
         $this->app     = Container::get('app');
         $this->view    = Container::get('view')->init(
-            $this->app['config']->pull('template'),
-            $this->app['config']->get('view_replace_str')
+            $this->app['config']->pull('template')
         );
 
         // 控制器初始化
@@ -116,13 +115,12 @@ class Controller
      * @access protected
      * @param  string $template 模板文件名
      * @param  array  $vars     模板输出变量
-     * @param  array  $replace  模板替换
      * @param  array  $config   模板参数
      * @return mixed
      */
-    protected function fetch($template = '', $vars = [], $replace = [], $config = [])
+    protected function fetch($template = '', $vars = [], $config = [])
     {
-        return $this->view->fetch($template, $vars, $replace, $config);
+        return $this->view->fetch($template, $vars, $config);
     }
 
     /**
@@ -130,13 +128,12 @@ class Controller
      * @access protected
      * @param  string $content 模板内容
      * @param  array  $vars    模板输出变量
-     * @param  array  $replace 替换内容
      * @param  array  $config  模板参数
      * @return mixed
      */
-    protected function display($content = '', $vars = [], $replace = [], $config = [])
+    protected function display($content = '', $vars = [], $config = [])
     {
-        return $this->view->display($content, $vars, $replace, $config);
+        return $this->view->display($content, $vars, $config);
     }
 
     /**
@@ -149,6 +146,19 @@ class Controller
     protected function assign($name, $value = '')
     {
         $this->view->assign($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * 视图过滤
+     * @access protected
+     * @param  Callable $filter 过滤方法或闭包
+     * @return $this
+     */
+    protected function filter($filter)
+    {
+        $this->view->filter($filter);
 
         return $this;
     }

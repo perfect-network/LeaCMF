@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -15,11 +15,22 @@ use think\Route;
 
 class RuleItem extends Rule
 {
-    // 路由规则
+    /**
+     * 路由规则
+     * @var string
+     */
     protected $name;
-    // 路由地址
+
+    /**
+     * 路由地址
+     * @var string|\Closure
+     */
     protected $route;
-    // 请求类型
+
+    /**
+     * 请求类型
+     * @var string
+     */
     protected $method;
 
     /**
@@ -74,23 +85,25 @@ class RuleItem extends Rule
     }
 
     /**
-     * 是否为MISS路由
+     * 设置为自动路由
      * @access public
-     * @return bool
-     */
-    public function isMiss()
-    {
-        return '__miss__' == $this->name;
-    }
-
-    /**
-     * 是否为自动路由
-     * @access public
-     * @return bool
+     * @return $this
      */
     public function isAuto()
     {
-        return '__auto__' == $this->name;
+        $this->parent->setAutoRule($this);
+        return $this;
+    }
+
+    /**
+     * 设置为MISS路由
+     * @access public
+     * @return $this
+     */
+    public function isMiss()
+    {
+        $this->parent->setMissRule($this);
+        return $this;
     }
 
     /**
@@ -104,8 +117,12 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        if ($dispatch = $this->checkAllowOptions($request)) {
-            // 允许OPTIONS嗅探
+        if ($this->parent && $prefix = $this->parent->getFullName()) {
+            $this->name = $prefix . ($this->name ? '/' . ltrim($this->name, '/') : '');
+        }
+
+        if ($dispatch = $this->checkCrossDomain($request)) {
+            // 允许跨域
             return $dispatch;
         }
 
@@ -117,6 +134,16 @@ class RuleItem extends Rule
         // 合并分组参数
         $this->mergeGroupOptions();
         $option = $this->option;
+
+        if (!empty($option['append'])) {
+            $request->route($option['append']);
+        }
+
+        // 是否区分 / 地址访问
+        if (!empty($option['remove_slash']) && '/' != $this->name) {
+            $this->name = rtrim($this->name, '/');
+            $url        = rtrim($url, '|');
+        }
 
         // 检查前置行为
         if (isset($option['before']) && false === $this->checkBefore($option['before'])) {

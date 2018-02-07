@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -58,16 +58,12 @@ class Domain extends RuleGroup
             }
 
             $group = new RuleGroup($this->router);
+
             $this->addRule($group);
+
             $this->router->setGroup($group);
 
-            if ($this->rule instanceof \Closure) {
-                Container::getInstance()->invokeFunction($this->rule);
-            } elseif (is_array($this->rule)) {
-                $this->router->rules($this->rule);
-            } else {
-                $this->router->bind($this->rule);
-            }
+            $this->router->parseGroupRule($this, $this->rule);
 
             $this->rule = null;
         }

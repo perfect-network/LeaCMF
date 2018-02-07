@@ -3,4 +3,4 @@ composer.lock
 *.log
 .DS_STORE
 .env
-thinkphp
+/thinkphp

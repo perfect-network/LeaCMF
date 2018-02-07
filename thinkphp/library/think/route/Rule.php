@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -20,6 +20,7 @@ use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
 use think\route\dispatch\Redirect as RedirectDispatch;
 use think\route\dispatch\Response as ResponseDispatch;
+use think\route\dispatch\View as ViewDispatch;
 
 abstract class Rule
 {
@@ -81,7 +82,7 @@ abstract class Rule
      */
     public function name($name)
     {
-        $this->name = trim($name, '/');
+        $this->name = '/' != $name ? ltrim($name, '/') : '/';
 
         return $this;
     }
@@ -124,6 +125,23 @@ abstract class Rule
         }
 
         return isset($this->option[$name]) ? $this->option[$name] : null;
+    }
+
+    /**
+     * 附加路由隐式参数
+     * @access public
+     * @param  array     $append
+     * @return $this
+     */
+    public function append(array $append = [])
+    {
+        if (isset($this->option['append'])) {
+            $this->option['append'] = array_merge($this->option['append'], $append);
+        } else {
+            $this->option['append'] = $append;
+        }
+
+        return $this;
     }
 
     /**
@@ -232,12 +250,34 @@ abstract class Rule
     /**
      * 绑定Response对象
      * @access public
-     * @param  array|string     $response
+     * @param  mixed     $response
      * @return $this
      */
     public function response($response)
     {
         return $this->option('response', $response);
+    }
+
+    /**
+     * 设置Response Header信息
+     * @access public
+     * @param  string|array $name  参数名
+     * @param  string       $value 参数值
+     * @return $this
+     */
+    public function header($header, $value = null)
+    {
+        if (empty($this->option['header'])) {
+            $this->option['header'] = [];
+        }
+
+        if (is_array($header)) {
+            $this->option['header'] = array_merge($this->option['header'], $header);
+        } else {
+            $this->option['header'][$header] = $value;
+        }
+
+        return $this;
     }
 
     /**
@@ -319,6 +359,28 @@ abstract class Rule
     }
 
     /**
+     * 当前路由到一个模板地址 当使用数组的时候可以传入模板变量
+     * @access public
+     * @param  bool|array     $view
+     * @return $this
+     */
+    public function view($view = true)
+    {
+        return $this->option('view', $view);
+    }
+
+    /**
+     * 当前路由为重定向
+     * @access public
+     * @param  bool   $redirect 是否为重定向
+     * @return $this
+     */
+    public function redirect($redirect = true)
+    {
+        return $this->option('redirect', $redirect);
+    }
+
+    /**
      * 设置路由完整匹配
      * @access public
      * @param  bool     $match
@@ -330,14 +392,34 @@ abstract class Rule
     }
 
     /**
-     * 设置是否允许OPTIONS嗅探
+     * 是否去除URL最后的斜线
      * @access public
-     * @param  bool     $allow
+     * @param  bool     $remove
      * @return $this
      */
-    public function allowOptions($allow = true)
+    public function removeSlash($remove = true)
     {
-        return $this->option('allow_options', $allow);
+        return $this->option('remove_slash', $remove);
+    }
+
+    /**
+     * 设置是否允许跨域
+     * @access public
+     * @param  bool     $allow
+     * @param  array    $header
+     * @return $this
+     */
+    public function allowCrossDomain($allow = true, $header = [])
+    {
+        if (!empty($header)) {
+            $this->header($header);
+        }
+
+        if ($allow && $this->parent) {
+            $this->parent->addRule($this, 'options');
+        }
+
+        return $this->option('cross_domain', $allow);
     }
 
     /**
@@ -346,11 +428,25 @@ abstract class Rule
      * @param  Request     $request
      * @return Dispatch|void
      */
-    protected function checkAllowOptions($request)
+    protected function checkCrossDomain($request)
     {
-        if (!empty($this->option['allow_options']) && $request->method(true) == 'OPTIONS') {
-            // 允许OPTIONS嗅探
-            return new ResponseDispatch(Response::create()->code(200));
+        if (!empty($this->option['cross_domain'])) {
+
+            $header = [
+                'Access-Control-Allow-Origin'  => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
+                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+            ];
+
+            if (!empty($this->option['header'])) {
+                $header = array_merge($header, $this->option['header']);
+            }
+
+            $this->option['header'] = $header;
+
+            if ($request->method(true) == 'OPTIONS') {
+                return new ResponseDispatch(Response::create()->code(204)->header($header));
+            }
         }
     }
 
@@ -359,7 +455,7 @@ abstract class Rule
      * @access public
      * @return $this
      */
-    public function crossDomain()
+    public function crossDomainRule()
     {
         if ($this instanceof RuleGroup) {
             $method = '*';
@@ -489,6 +585,14 @@ abstract class Rule
             $this->createBindModel($option['model'], $matches);
         }
 
+        // 指定Header数据
+        if (!empty($option['header'])) {
+            $header = $option['header'];
+            Container::get('hook')->add('response_send', function ($response) use ($header) {
+                $response->header($header);
+            });
+        }
+
         // 指定Response响应数据
         if (!empty($option['response'])) {
             Container::get('hook')->add('response_send', $option['response']);
@@ -571,7 +675,6 @@ abstract class Rule
      */
     protected function checkBefore($before)
     {
-
         $hook = Container::get('hook');
 
         foreach ((array) $before as $behavior) {
@@ -581,7 +684,6 @@ abstract class Rule
                 return false;
             }
         }
-
     }
 
     /**
@@ -629,7 +731,9 @@ abstract class Rule
             $result = new CallbackDispatch($route);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($route);
-        } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
+        } elseif (isset($option['view']) && false !== $option['view']) {
+            $result = new ViewDispatch($route, is_array($option['view']) ? $option['view'] : []);
+        } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
@@ -713,13 +817,13 @@ abstract class Rule
         }
 
         // 伪静态后缀检测
-        if ((isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|'))
-            || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))) {
+        if ($request->url() != '/' && ((isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|'))
+            || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|')))) {
             return false;
         }
 
         // 域名检查
-        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain]))) {
+        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $request->subDomain()]))) {
             return false;
         }
 

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -27,6 +27,7 @@ class File extends Driver
         'path'          => '',
         'hash_type'     => 'md5',
         'data_compress' => false,
+        'serialize'     => true,
     ];
 
     protected $expire;
@@ -71,9 +72,10 @@ class File extends Driver
      * 取得变量的存储文件名
      * @access protected
      * @param  string $name 缓存变量名
+     * @param  bool   $auto 是否自动创建目录
      * @return string
      */
-    protected function getCacheKey($name)
+    protected function getCacheKey($name, $auto = false)
     {
         $name = hash($this->options['hash_type'], $name);
 
@@ -89,7 +91,7 @@ class File extends Driver
         $filename = $this->options['path'] . $name . '.php';
         $dir      = dirname($filename);
 
-        if (!is_dir($dir)) {
+        if ($auto && !is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
@@ -165,7 +167,7 @@ class File extends Driver
         }
 
         $expire   = $this->getExpireTime($expire);
-        $filename = $this->getCacheKey($name);
+        $filename = $this->getCacheKey($name, true);
 
         if ($this->tag && !is_file($filename)) {
             $first = true;

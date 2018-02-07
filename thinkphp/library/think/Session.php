@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -44,6 +44,12 @@ class Session
      * @var integer
      */
     protected $lockTimeout = 3;
+
+    /**
+     * 是否启用锁机制
+     * @var bool
+     */
+    protected $lock = false;
 
     /**
      * 设置或者获取session作用域（前缀）
@@ -90,6 +96,10 @@ class Session
 
         if (isset($config['prefix'])) {
             $this->prefix = $config['prefix'];
+        }
+
+        if (isset($config['use_lock'])) {
+            $this->lock = $config['use_lock'];
         }
 
         if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
@@ -178,9 +188,9 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set($name, $value = '', $prefix = null)
+    public function set($name, $value, $prefix = null)
     {
-        $this->lock(); // lock必须先于 $this->boot()
+        $this->lock();
 
         empty($this->init) && $this->boot();
 
@@ -200,7 +210,6 @@ class Session
             $_SESSION[$name] = $value;
         }
 
-        $this->pause();
         $this->unlock();
     }
 
@@ -213,32 +222,27 @@ class Session
      */
     public function get($name = '', $prefix = null)
     {
-        $this->lock(); // lock必须先于 $this->boot()
+        $this->lock();
 
         empty($this->init) && $this->boot();
+
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
 
-        if ('' == $name) {
-            // 获取全部的session
-            $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
-        } elseif ($prefix) {
-            // 获取session
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$prefix][$name1][$name2]) ? $_SESSION[$prefix][$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$prefix][$name]) ? $_SESSION[$prefix][$name] : null;
-            }
-        } else {
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$name1][$name2]) ? $_SESSION[$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+        $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
+
+        if ('' != $name) {
+            $name = explode('.', $name);
+
+            foreach ($name as $val) {
+                if (isset($value[$val])) {
+                    $value = $value[$val];
+                } else {
+                    $value = null;
+                    break;
+                }
             }
         }
 
-        $this->pause();
         $this->unlock();
 
         return $value;
@@ -251,6 +255,7 @@ class Session
     {
         // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
         $config = Container::get('config')->pull('session');
+
         if (!empty($config['type']) && isset($config['use_lock']) && $config['use_lock']) {
             // 读取session驱动
             $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
@@ -260,10 +265,12 @@ class Session
                 $this->lockDriver = new $class($config);
             }
         }
+
         // 通过cookie获得session_id
         if (isset($config['name']) && $config['name']) {
             $this->sessKey = $config['name'];
         }
+
         if (isset($config['lock_timeout']) && $config['lock_timeout'] > 0) {
             $this->lockTimeout = $config['lock_timeout'];
         }
@@ -276,12 +283,17 @@ class Session
      */
     protected function lock()
     {
+        if (empty($this->lock)) {
+            return;
+        }
+
         $this->initDriver();
 
         if (null !== $this->lockDriver && method_exists($this->lockDriver, 'lock')) {
             $t = time();
             // 使用 session_id 作为互斥条件，即只对同一 session_id 的会话互斥。第一次请求没有 session_id
             $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';
+
             do {
                 if (time() - $t > $this->lockTimeout) {
                     $this->unlock();
@@ -297,6 +309,12 @@ class Session
      */
     protected function unlock()
     {
+        if (empty($this->lock)) {
+            return;
+        }
+
+        $this->pause();
+
         if ($this->lockDriver && method_exists($this->lockDriver, 'unlock')) {
             $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';
             $this->lockDriver->unlock($sessID);
@@ -348,17 +366,19 @@ class Session
      */
     public function flush()
     {
-        if ($this->init) {
-            $item = $this->get('__flash__');
+        if (!$this->init) {
+            return;
+        }
 
-            if (!empty($item)) {
-                $time = $item['__time__'];
+        $item = $this->get('__flash__');
 
-                if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
-                    unset($item['__time__']);
-                    $this->delete($item);
-                    $this->set('__flash__', []);
-                }
+        if (!empty($item)) {
+            $time = $item['__time__'];
+
+            if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
+                unset($item['__time__']);
+                $this->delete($item);
+                $this->set('__flash__', []);
             }
         }
     }
@@ -373,6 +393,7 @@ class Session
     public function delete($name, $prefix = null)
     {
         empty($this->init) && $this->boot();
+
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
 
         if (is_array($name)) {
@@ -505,7 +526,6 @@ class Session
     {
         // 暂停session
         session_write_close();
-
         $this->init = false;
     }
 }
