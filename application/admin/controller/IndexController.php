@@ -50,4 +50,11 @@ class IndexController extends BaseController
             'mem_usage' => $pr
         ]);
     }
+
+    //更新侧边栏状态
+    public function flexible()
+    {
+        $menu = $this->request->get('menu', 'open', 'trim');
+        session('menu_status', $menu);
+    }
 }

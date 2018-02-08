@@ -53,6 +53,11 @@ class PublicController extends BaseController
         } else {
             return view();
         }
+    }
 
+    public function logout()
+    {
+        Auth::instance()->logout();
+        return redirect('login');
     }
 }

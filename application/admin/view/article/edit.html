@@ -1,0 +1,67 @@
+`
+<extend name="public/base" />
+<block name="content">
+    {:widget('upload/editor')}
+    <php>exit;</php>
+    <div class="box-body">
+        <form class="layui-form" action="{:url()}" method="post" id="goods-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" placeholder="" value="{$info.title|default=''}" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">类型</label>
+                <div class="layui-input-inline">
+                    <notempty name="info">
+                        <input type="hidden" name="cate" value="{$info.cate}">
+                        <input type="text" value="{$cate[$info['cate']]|default=''}" class="layui-input">
+                        <else />
+                        <input type="text" value="{$cate[$tab]|default=''}" class="layui-input">
+                        <input type="hidden" name="cate" value="{$tab}">
+                    </notempty>
+                </div>
+            </div>
+            <if condition="(empty($info)&&$tab==3)||(!empty($info)&&$info['cate']==3)">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">封面图</label>
+                    <div class="layui-input-block">
+                        {:action('FileController/webUpload',['field'=>'cover','type'=>'image','value'=>(isset($info['cover'])?$info['cover']:'')])}
+                    </div>
+                </div>
+            </if>
+            <div class="layui-form-item">
+                <label class="layui-form-label">详情</label>
+                <div class="layui-input-block">
+                    <textarea id="content" name="content" style="width:100%;height:300px;">
+                        {$info.content|default=""}
+                    </textarea>
+                </div>
+            </div>
+            <input type="hidden" name="id" value="{$info.id|default=''}">
+            <input type="hidden" name="cate_id" value="{$info.cate_id|default='1'}">
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="btn btn-primary" lay-submit lay-filter="layform" target="1"><i class="fa fa-save"></i> 保存</button>
+                    <button type="reset" class="btn btn-default" style="margin-left: 20px;">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</block>
+<block name="script">
+    <script charset="utf-8" src="__PUBLIC__/kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="__PUBLIC__/kindeditor/lang/zh-CN.js"></script>
+    <script type="text/javascript">
+    KindEditor.ready(function(K) {
+        window.editor = K.create('textarea[name="content"]', {
+            uploadJson: "{:\\lea\\Y::getUploadUrl()}",
+            formatUploadUrl: false,
+            afterBlur: function() {
+                this.sync();
+            }
+        });
+    });
+    </script>
+</block>

@@ -18,8 +18,9 @@
   "require": {
     "php": ">=7.0",
     "topthink/framework": "5.1.*",
+    "topthink/think-captcha": "^2.0",
     "lea21st/think": "dev-master",
-    "topthink/think-captcha": "^2.0"
+    "qiniu/php-sdk": "^7.2"
   },
   "autoload": {
     "psr-4": {
