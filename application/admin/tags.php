@@ -18,7 +18,7 @@ return [
     ],
     // 模块初始化
     'module_init'  => [
-        'app\\common\\behavior\\Init'
+        'app\\admin\\behavior\\Init'
     ],
     // 操作开始执行
     'action_begin' => [

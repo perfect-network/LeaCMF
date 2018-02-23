@@ -6,7 +6,7 @@
  * Time: 14:35
  */
 
-namespace app\common\behavior;
+namespace app\admin\behavior;
 
 use lea21st\Config;
 use lea21st\RBAC;

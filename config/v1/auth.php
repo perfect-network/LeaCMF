@@ -8,6 +8,6 @@
 return [
     //不需要登录可以访问的
     'public_url' => [
-        //'/v1/public/*'
+        '/v1/public/*'
     ],
 ];
