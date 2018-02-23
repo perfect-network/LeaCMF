@@ -62,12 +62,9 @@ class Auth
     }
 
     /**
-     * 登录
-     * @param null $admin
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * 生产token
+     * @param $user_id
+     * @return string
      */
     public function token($user_id)
     {
@@ -106,7 +103,11 @@ class Auth
 
     /**
      * 当前登录用户
-     * @return mixed|null
+     * @param array $jwt
+     * @return array|null|\PDOStatement|string|\think\Model
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function user($jwt = [])
     {
