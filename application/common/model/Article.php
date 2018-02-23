@@ -8,7 +8,7 @@
 
 namespace app\common\model;
 
-use lea21st\think\Auth;
+use lea21st\Auth;
 use think\Model;
 
 class Article extends Model

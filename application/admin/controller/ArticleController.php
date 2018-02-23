@@ -58,15 +58,13 @@ class ArticleController extends BaseController
         if ($this->request->isPost()) {
             $Article         = new Article();
             $post            = $this->request->post();
-            $post['content'] = $_POST['content'];
-            if ($Article->validate(true)->allowField(true)->save($post) === false) {
+            $post['content'] = $this->request->post('content', '', null);
+            if ($Article->allowField(true)->save($post) === false) {
                 $this->error($Article->getError());
             }
-            $this->success('新增成功', url('index', ['tab' => $Article->cate]));
+            $this->success('新增成功', url('index'));
         } else {
-            return view('edit', [
-                'tab' => $this->request->get('cate', 1),
-            ]);
+            return view('edit');
         }
     }
 
@@ -79,11 +77,11 @@ class ArticleController extends BaseController
         if ($this->request->isPost()) {
             $Article         = new Article();
             $post            = $this->request->post();
-            $post['content'] = $_POST['content'];
-            if ($Article->validate(true)->isUpdate(true)->allowField(true)->save($post) === false) {
+            $post['content'] = $this->request->post('content', '', null);
+            if ($Article->isUpdate(true)->allowField(true)->save($post) === false) {
                 $this->error($Article->getError());
             }
-            $this->success('修改成功', url('index', ['tab' => $Article->cate]));
+            $this->success('修改成功', url('index'));
         } else {
             $id = $this->request->get('id', 0, 'intval');
             if (!$id) {

@@ -9,7 +9,7 @@
 namespace app\admin\controller;
 
 use app\admin\model\Admin;
-use lea21st\think\Auth;
+use lea21st\RBAC;
 use think\facade\Request;
 use think\Validate;
 
@@ -45,7 +45,7 @@ class PublicController extends BaseController
             $admin['last_login_ip']   = Request::ip();
             $admin['last_login_time'] = time();
             $admin['token']           = md5($admin['username'] . $admin['password'] . uniqid());
-            if ($admin->save() && Auth::instance()->login($admin)) {
+            if ($admin->save() && RBAC::instance()->login($admin)) {
                 cookie('username', $admin['username']);
                 $this->success('登录成功', 'index/index');
             }
@@ -57,7 +57,7 @@ class PublicController extends BaseController
 
     public function logout()
     {
-        Auth::instance()->logout();
+        RBAC::instance()->logout();
         return redirect('login');
     }
 }

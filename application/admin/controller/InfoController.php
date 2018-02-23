@@ -3,7 +3,7 @@
 namespace app\admin\controller;
 
 use app\admin\model\Admin;
-use lea21st\think\Hash;
+use lea21st\Hash;
 use think\Db;
 use think\Validate;
 

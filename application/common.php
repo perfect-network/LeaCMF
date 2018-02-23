@@ -1,4 +1,31 @@
 <?php
+
+function rbac()
+{
+    return \lea21st\RBAC::instance();
+}
+
+function auth($config = [])
+{
+    return \lea21st\Auth::instance($config);
+}
+
+function isRole($name)
+{
+    if (false !== strpos($name, '|')) {
+        $name = explode('|', $name);
+    } else {
+        $name = [$name];
+    }
+
+    $group = rbac()->getGroups();
+    if (!empty($group)) {
+        $group = array_column($group, 'name');
+        return !empty(array_intersect($name, $group));
+    }
+    return false;
+}
+
 /**
  * 数据签名认证
  * @param  array $data 被认证的数据
@@ -16,6 +43,7 @@ function data_auth_sign($data)
     $sign = sha1($code); //生成签名
     return $sign;
 }
+
 /**
  * 是否是手机号码，含虚拟运营商的170号段
  * @author wei sun

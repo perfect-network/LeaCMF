@@ -4,7 +4,7 @@ namespace app\admin\controller\auth;
 
 use app\admin\controller\BaseController;
 use app\admin\model\Admin;
-use lea21st\think\Hash;
+use lea21st\Hash;
 use think\Db;
 
 /**

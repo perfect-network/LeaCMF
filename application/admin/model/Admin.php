@@ -8,7 +8,7 @@
 
 namespace app\admin\model;
 
-use lea21st\think\library\Auth;
+use lea21st\library\Auth;
 use think\facade\Request;
 use think\facade\Session;
 use think\Model;

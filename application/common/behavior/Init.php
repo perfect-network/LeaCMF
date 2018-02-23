@@ -8,8 +8,8 @@
 
 namespace app\common\behavior;
 
-use lea21st\think\Auth;
-use lea21st\think\Config;
+use lea21st\Config;
+use lea21st\RBAC;
 use think\exception\HttpResponseException;
 use think\facade\Request;
 use think\facade\Response;
@@ -25,7 +25,7 @@ class Init
             return;
         }
 
-        $auth = Auth::instance();
+        $auth = RBAC::instance();
 
         //ip限制
         if (config('admin_allow_ip')) {
