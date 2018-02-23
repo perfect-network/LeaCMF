@@ -21,10 +21,6 @@ class Init
         //注入配置项
         Config::config();
 
-        if (Request::module() != 'admin') {
-            return;
-        }
-
         $auth = RBAC::instance();
 
         //ip限制
