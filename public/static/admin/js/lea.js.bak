@@ -1,0 +1,281 @@
+layui.define(['layer', 'form', 'element', 'table'], function(exports) {
+    var layer = layui.layer,
+        element = layui.element,
+        table = layui.table,
+        $ = layui.$,
+        form = layui.form;
+
+    //导航菜单
+    $('.aside li>a').click(function(e) {
+        e.stopPropagation();
+        var next = $(this).next('dl');
+        if (!$(this).next('dl').length) {
+            return;
+        }
+        if (next.css('display') == 'none') {
+            $(this).addClass('active');
+            next.slideDown(500);
+        } else {
+            next.slideUp(500);
+            $(this).removeClass('active');
+        }
+        return false;
+    });
+
+    var lea = {
+        formatJson: function(arr) {
+            var o = {};
+            $.each(arr, function() {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        }
+    };
+
+    //表格初始化
+    $.fn.table = function(cols, option) {
+        var that = this;
+        var url = that.data('url') || '';
+        var id = that.data('id') || 'list';
+        var param = that.find('form').serialize();
+        var option = option || {};
+        console.log(option);
+        table.render({
+            elem: '#' + id,
+            url: url,
+            method: 'post',
+            page: (typeof option.page !== 'undefined') ? option.page : true,
+            limit: option.limit || 20,
+            height: option.height || 'full-250',
+            cols: cols
+        });
+    };
+
+    //表格重载
+    $.fn.reload = function(option, callback) {
+        var that = this;
+        if (typeof option === 'function') {
+            callback = option;
+            option = {}
+        }
+        var id = that.attr('data-id') || 'list';
+        var param = that.find('form').serializeArray();
+
+        var d = {
+            where: lea.formatJson(param)
+        };
+        if (option) {
+            var d = Object.assign(d, option);
+        }
+        table.reload(id, d);
+        if (typeof callback === 'function') {
+            callback();
+        }
+    };
+
+    //点击搜索
+    $(document).on('click', '.search', function(event) {
+        event.preventDefault();
+        var that = $(this);
+        that.html('<i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop">&#xe63d;</i>');
+        that.closest('.data-table').reload(function() {
+            that.html('<i class="layui-icon">&#xe615;</i>');
+        });
+
+    });
+    //自动搜索
+    form.on('select(data-table)', function(data) {
+        $(data.elem).closest('.data-table').reload();
+    });
+
+    /**
+     * 异步获取表单
+     * 异步提交表单
+     * 表单验证
+     */
+    $(document).on('click', '.ajax-form', function(event) {
+        event.preventDefault();
+        var self = $(this);
+        if (self.attr('disabled')) return false;
+        var url = self.attr('href') || self.data('url');
+        if (!url) return;
+        $.get(url, function(html) {
+            if (typeof html === 'object') {
+                layer.msg(html.msg);
+                return false;
+            }
+            parent.layer.open({
+                type: 1,
+                title: self.attr('title'),
+                content: html,
+                scrollbar: false,
+                maxWidth: '80%',
+                btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                    if ($(layero).find('.layui-layer-btn0').attr('disabled')) {
+                        return false;
+                    }
+                    $(layero).find('.layui-layer-btn0').attr('disabled', 'disabled');
+                    var _form = $(layero).find('form');
+                    $.post(_form.attr('action'), _form.serialize(), function(res) {
+                        if (res.code == 1) {
+                            if (res.url) {
+                                window.location.href = res.url;
+                            } else {
+                                if (self.closest('.data-table').length) {
+                                    self.closest('.data-table').reload();
+                                } else if (self.closest('.data-list').length) {
+                                    self.closest('.navbar').next('.data-list').getList();
+                                }
+                            }
+                            layer.msg(res.msg, {
+                                time: 1000,
+                                icon: 6
+                            }, function() {
+                                layer.close(index);
+                            });
+                        } else {
+                            var str = res.msg || '服务器异常';
+                            layer.msg(str, {
+                                time: 2000,
+                                icon: 5
+                            });
+                            $(layero).find('.layui-layer-btn0').removeAttr('disabled')
+                        }
+
+                    }, 'json');
+                },
+                btn2: function(index) {
+                    layer.close(index);
+                },
+                success: function() {
+                    form.render();
+                }
+            }, 'html');
+        });
+        return false;
+    });
+
+    /**
+     * 异步url请求
+     * 用户简单操作，如删除
+     */
+    $(document).on('click', '.ajax-get', function(event) {
+        event.preventDefault();
+        var self = $(this);
+        var url = self.attr('href') || self.data('url');
+        var title = self.attr('title') || '执行该操作';
+        if (!url) return false;
+
+        if (self.attr('confirm')) {
+            layer.confirm('您确定要 <span style="color:#f56954">' + title + '</span> 吗？', function(index) {
+                $.get(url, function(res) {
+                    layer.msg(res.msg);
+                    if (res.url) {
+                        window.location.href = res.url;
+                    } else {
+                        if (self.closest('.data-table').length) {
+                            self.closest('.data-table').reload();
+                        } else if (self.closest('.data-list').length) {
+                            self.closest('.data-list').getList();
+                        }
+                    }
+
+                });
+            });
+
+        } else {
+            $.get(url, function(res) {
+                var message = self.attr('msg') || 1;
+                if (res.code == 0 || message == 1) {
+                    layer.msg(res.msg);
+                }
+                if (res.url) {
+                    window.location.href = res.url;
+                } else {
+                    if (self.closest('.data-table').length) {
+                        self.closest('.data-table').reload();
+                    } else if (self.closest('.data-list').length) {
+                        self.closest('.data-list').getList();
+                    }
+                }
+            });
+        }
+        return false;
+    })
+
+
+
+    //监听table swtich操作
+    form.on('switch(table-status)', function(obj) {
+        var self = $(obj.elem);
+        var table = self.closest('.data-table').data('id');
+        $.ajax({
+                url: self.data('href'),
+                type: 'post',
+                dataType: 'json'
+            })
+            .done(function(data) {
+                if (data.code != 0) {
+                    layer.msg(data.msg);
+                    $(table).reload();
+                }
+            })
+            .fail(function(xhr) {
+                layer.msg('服务器异常，请稍后重试~');
+                console.log(xhr.responseText);
+                $(table).reload();
+            });
+    });
+
+    /**
+     *监听提普通交
+     */
+    form.on('submit(layform)', function(data) {
+        var self = $(data.elem);
+        if (self.attr('disabled')) {
+            return false;
+        }
+        self.attr('disabled', 'disabled');
+        $.ajax({
+                url: data.action || '',
+                type: 'POST',
+                dataType: 'json',
+                data: data.field
+            })
+            .done(function(res) {
+                if (res.code == 0) {
+                    layer.msg(res.msg, {
+                        time: 1000,
+                        icon: 6
+                    }, function() {
+                        if (res.url) window.location.href = res.url;
+                    });
+                } else {
+                    layer.msg(res.msg, {
+                        time: 1500,
+                        icon: 5
+                    });
+                }
+            })
+            .fail(function() {
+                layer.msg('服务器异常', {
+                    time: 1500,
+                    icon: 5
+                });
+            })
+            .always(function() {
+                self.removeAttr('disabled');
+            });
+        return false;
+    });
+    //输出test接口
+    exports('lea', lea);
+});
