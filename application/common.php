@@ -5,11 +5,6 @@ function rbac()
     return \lea21st\RBAC::instance();
 }
 
-function auth($config = [])
-{
-    return \lea21st\Auth::instance($config);
-}
-
 function isRole($name)
 {
     if (false !== strpos($name, '|')) {

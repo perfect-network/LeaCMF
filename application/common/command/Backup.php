@@ -44,7 +44,7 @@ class Backup extends Command
     {
         $config = Config::get('database');
 
-        $cmd    = '/usr/bin/mysqldump --user ' . $config['username'] . ' --password=' . $config['password'] . ' ' . $config['database'] . ' > ' . $this->getPath() . 'sql_backup_' . date('YmdHis') . '.sql;';
+        $cmd = '/usr/bin/mysqldump -h ' . $config['hostname'] . ' --user ' . $config['username'] . ' --password=' . $config['password'] . ' ' . $config['database'] . ' > ' . $this->getPath() . 'sql_backup_' . date('YmdHis') . '.sql;';
         try {
             passthru($cmd);
         } catch (\Exception $e) {

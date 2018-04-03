@@ -360,11 +360,11 @@ class RBAC
         }
 
         $auth_rule = $this->config['auth_rule'];
-        $list      = Cache::remember('sys:cache:menu:' . $uid, function () use ($auth_rule, $uid, $map) {
+        $list      = Cache::remember('sys:cache:menu1:' . $uid, function () use ($auth_rule, $uid, $map) {
             return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
         });
 
-        $crumb = Cache::remember('sys:cache:crumb:' . $uid, function () use ($auth_rule, $uid, $map) {
+        $crumb = Cache::remember('sys:cache:crumb1:' . $uid, function () use ($auth_rule, $uid, $map) {
             unset($map['is_menu']);
             return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
         });

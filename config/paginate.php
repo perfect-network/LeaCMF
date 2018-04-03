@@ -7,7 +7,7 @@
  */
 //分页配置
 return [
-    'type'      => 'lea21st\\think\\LayPage',
+    'type'      => 'lea21st\\LayPage',
     'var_page'  => 'page',
     'list_rows' => 15
 ];

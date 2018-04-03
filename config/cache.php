@@ -14,15 +14,26 @@
 // +----------------------------------------------------------------------
 
 return [
-    // 驱动方式
-    'type'       => 'redis',
-    'prefix'     => 'lea_',
-    'host'       => env('REDIS_HOST', '127.0.0.1'),
-    'port'       => env('REDIS_PORT', 6379),
-    'password'   => env('REDIS_PASSWORD', null),
-    'select'     => 0,
-    'timeout'    => 0,
-    'expire'     => 0,
-    'persistent' => false,
-    'serialize'  => true,
+    // 缓存配置为复合类型
+    'type'  =>  'complex',
+    'default'	=>	[
+        'type'	=>	'file',
+        // 全局缓存有效期（0为永久有效）
+        'expire'=>  0,
+        // 缓存前缀
+        'prefix'=>  '',
+        // 缓存目录
+        'path'  =>  '../runtime/cache/',
+    ],
+    'redis'	=>	[
+        'type'	=>	'redis',
+        'host'	=>	env('REDIS_HOST', '127.0.0.1'),
+        'host'       => env('REDIS_HOST', '127.0.0.1'),
+        'port'       => env('REDIS_PORT', 6379),
+        'password'   => env('REDIS_PASSWORD', null),
+        // 全局缓存有效期（0为永久有效）
+        'expire'=>  0,
+        // 缓存前缀
+        'prefix'=>  'lea',
+    ],
 ];

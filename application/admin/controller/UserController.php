@@ -41,7 +41,7 @@ class UserController extends BaseController
         if ($status > -1) {
             $userModel->where('status', $status);
         }
-        $users = $userModel->order('id desc')->paginate();
+        $users = $userModel->order('id desc')->paginate(2);
         $list  = $users->getCollection()->toArray();
         $page  = $users->render();
         $this->assign('list', $list);
