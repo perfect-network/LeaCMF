@@ -63,8 +63,7 @@ composer update
 ![2](/public/static/2.png "2")
 ![3](/public/static/3.png "3")
 ![4](/public/static/4.png "4")
-![4](/public/static/5.png "5")
-![4](/public/static/6.png "6")
+![5](/public/static/5.png "5")
 
 ## **特别鸣谢**
 
