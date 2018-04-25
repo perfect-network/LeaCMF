@@ -585,3 +585,13 @@ body {
     text-align: center;
     color: #999
 }
+.layui-table td, .layui-table th{
+    font-size: 13px;
+}
+
+.text-yellow,.text-1{
+    color: #f39c12
+}
+.text-muted,.text-0{
+    color: #777
+}

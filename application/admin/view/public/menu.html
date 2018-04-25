@@ -3,6 +3,7 @@
         <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
         <ul class="aside-nav">
             <li class="title">导航菜单</li>
+            <li><a href="{:url('/')}"><i class="fa fa-dashboard"></i> 控制台</a></li>
             <notempty name="__NAV__.menu">
                 <volist name="__NAV__.menu" id="menu">
                     <li>
@@ -17,10 +18,10 @@
                     </li>
                 </volist>
             </notempty>
-            <if isRole('admin')>
-                <li class="title">开发者中心</li>
-                <li><a href="{:url('develop/cache')}"><i class="fa fa-code"></i> 缓存管理</a></li>
-            </if>
+            <php>if(app()->rbac->isRole('super admin')):</php>
+            <li class="title">开发者中心</li>
+            <li><a href="{:url('develop/cache')}"><i class="fa fa-code"></i> 缓存管理</a></li>
+            <php>endif;</php>
         </ul>
     </div>
 </div>

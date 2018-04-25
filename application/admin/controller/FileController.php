@@ -10,7 +10,7 @@ use think\Db;
 use think\Image;
 use think\Request;
 
-class FileController extends Controller
+class FileController extends BaseController
 {
 
     public function upload(Request $request)
@@ -28,20 +28,8 @@ class FileController extends Controller
         }
         $info = $file->validate(['size' => $config['upload_size_limit'][$type], 'ext' => $config['upload_type_limit'][$type]])->move($path);
         if ($info) {
-            $data          = [
-                'type'     => $type,
-                'ext'      => strtolower($info->getExtension()),
-                'path'     => $info->getSaveName(),
-                'filename' => $info->getFilename(),
-                'size'     => $info->getSize(),
-                'sha1'     => $info->hash('sha1'),
-                'mime'     => $info->getMime(),
-                'at_time'  => time()
-            ];
-            $id            = Db::name('uploads')->insertGetId($data);
-            $result['src'] = '/uploads/' . $type . '/' . $info->getSaveName();
-            $result['id']  = $id;
-            return json(['code' => 0, 'msg' => '上传成功', 'data' => $result]);
+            $src = '/uploads/' . $type . '/' . $info->getSaveName();
+            return json(['code' => 0, 'msg' => '上传成功', 'data' => ['src' => $src]]);
         } else {
             return json(['code' => -10, 'msg' => $file->getError()]);
         }
@@ -49,7 +37,7 @@ class FileController extends Controller
 
     public function um(Request $request)
     {
-        $file     = $request->file('file');
+        $file = $request->file('file');
         if (empty($file)) {
             return response(json_encode(['code' => 1, 'state' => '文件不存在']));
         }

@@ -1,26 +1,4 @@
 <?php
-
-function rbac()
-{
-    return \lea21st\RBAC::instance();
-}
-
-function isRole($name)
-{
-    if (false !== strpos($name, '|')) {
-        $name = explode('|', $name);
-    } else {
-        $name = [$name];
-    }
-
-    $group = rbac()->getGroups();
-    if (!empty($group)) {
-        $group = array_column($group, 'name');
-        return !empty(array_intersect($name, $group));
-    }
-    return false;
-}
-
 /**
  * 数据签名认证
  * @param  array $data 被认证的数据

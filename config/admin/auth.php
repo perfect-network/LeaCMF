@@ -13,11 +13,13 @@ return [
     'auth_rule'         => 'auth_rule', // 权限规则表
     'auth_user'         => 'admin', // 用户信息表
 
-    'public_url'  => [
+    //不需要登录的
+    'no_need_login_url' => [
         '/public/login'
     ],
-    'allow_visit' => [
-        '/index/index',
-        '/index/system'
+
+    //登录用户不需要验证的
+    'allow_visit'       => [
+        '/file/upload'
     ]
 ];

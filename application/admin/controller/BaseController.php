@@ -19,14 +19,4 @@ class BaseController extends Controller
     {
         parent::initialize();
     }
-
-    public final function table($data, $count)
-    {
-        return [
-            'code'  => 0,
-            'msg'   => 'success',
-            'data'  => $data,
-            'count' => $count
-        ];
-    }
 }

@@ -3,7 +3,7 @@
 namespace app\admin\controller;
 
 use app\admin\model\Admin;
-use lea21st\Hash;
+use app\common\library\Hash;
 use think\Db;
 use think\Validate;
 
@@ -15,7 +15,7 @@ class InfoController extends BaseController
      */
     public function user()
     {
-        $info = Db::name('admin')->find(session('admin.id'));
+        $info = app()->user;
         $this->assign('info', $info);
         return view();
     }
@@ -29,8 +29,8 @@ class InfoController extends BaseController
         if (!$nickname) {
             $this->error('昵称不能为空');
         }
-        if (Db::name('admin')->where('id', session('admin.id'))->setField('nickname', $nickname) !== false) {
-            auth()->refresh();
+        if (Db::name('admin')->where('id', app()->user->id)->setField('nickname', $nickname) !== false) {
+            app()->rbac->refresh();
             $this->success('修改成功');
         }
         $this->success('修改失败');
@@ -39,9 +39,9 @@ class InfoController extends BaseController
     //更新头像
     public function updateFace()
     {
-        $face = $this->request->post('face', 0, 'intval');
-        if (Db::name('admin')->where('id', session('admin.id'))->setField('face', $face) !== false) {
-            auth()->refresh();
+        $face = $this->request->post('face', '', 'trim');
+        if (Db::name('admin')->where('id', app()->user->id)->setField('face', $face) !== false) {
+            app()->rbac->refresh();
             $this->success('修改成功');
         }
 
@@ -53,8 +53,9 @@ class InfoController extends BaseController
     {
         $post     = $this->request->post();
         $validate = new Validate([
-            'password|密码'     => 'require|length:6,16',
-            'repassword|重复密码' => 'require|length:6,16'
+            'old_password|密码'  => 'require|length:6,16',
+            'password|密码'      => 'require|length:6,16',
+            're_password|重复密码' => 'require|length:6,16'
         ], [
             'password.length' => '密码的长度为6到16位'
         ]);
@@ -62,11 +63,17 @@ class InfoController extends BaseController
         if (!$validate->check($post)) {
             $this->error($validate->getError());
         }
-        if ($password != $repassword) {
+
+
+        $admin = Admin::find(app()->user->id);
+        if (!Hash::check($post['old_password'], $admin->password)) {
+            $this->error('旧密码错误');
+        }
+        if ($post['password'] != $post['re_password']) {
             $this->error('两次密码输入不一致');
         }
-        $password = Hash::hash($password);
-        if (Db::name('admin')->where('id', auth()->getUserId())->setField('password', $password) !== false) {
+        $password = Hash::hash($post['password']);
+        if (Db::name('admin')->where('id', app()->user->id)->setField('password', $password) !== false) {
             $this->success('修改成功');
         }
 

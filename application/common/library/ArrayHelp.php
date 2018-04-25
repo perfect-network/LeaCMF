@@ -6,7 +6,7 @@
  * Time: 16:14
  */
 
-namespace lea21st;
+namespace app\common\library;
 class ArrayHelp
 {
     /**
@@ -93,15 +93,4 @@ class ArrayHelp
         }
         return $tree;
     }
-
-
-    public static function column($arr, $field)
-    {
-        if (empty($arr) || !is_array($arr)) return null;
-        $temp = [];
-        foreach ($arr as $v) {
-            array_push($temp, $v[$field]);
-        }
-    }
-
 }

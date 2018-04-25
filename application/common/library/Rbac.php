@@ -6,13 +6,13 @@
  * Time: 14:00
  */
 
-namespace lea21st;
+namespace app\common\library;
 
+use app\admin\model\Admin;
 use think\Db;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Request;
-use think\facade\Session;
 
 /**
  * 权限认证类
@@ -27,7 +27,7 @@ use think\facade\Session;
  *      在think_auth_rule 表中定义一条规则，condition字段就可以定义规则表达式。 如定义{score}>5  and {score}<100
  * 表示用户的分数在5-100之间时这条规则才会通过。
  */
-class RBAC
+class Rbac
 {
 
     /**
@@ -86,12 +86,11 @@ class RBAC
     public function login($admin = null)
     {
         if (is_numeric($admin)) {
-            $admin = Db::name($this->config['auth_user'])->find($admin);
+            $admin = Admin::find($admin);
             unset($admin['password'], $admin['token']);
         }
-
         if ($admin) {
-            session('admin', $admin);
+            session('lea-admin', $admin);
             return true;
         }
         return false;
@@ -99,7 +98,7 @@ class RBAC
 
     public function logout()
     {
-        session('admin', null);
+        session('lea-admin', null);
         $this->user = null;
         return true;
     }
@@ -117,9 +116,9 @@ class RBAC
      * 校验url，是否需要用户验证
      * @return bool
      */
-    public function checkPublicUrl()
+    public function notNeedLogin()
     {
-        $urls = $this->config['public_url'];
+        $urls = $this->config['no_need_login_url'];
         if (in_array($this->getPath(), $urls)) {
             return true;
         }
@@ -138,7 +137,7 @@ class RBAC
 
     public function refresh()
     {
-        return $this->login($this->getUserId());
+        return $this->login($this->user->id);
     }
 
 
@@ -148,7 +147,7 @@ class RBAC
      */
     public function user()
     {
-        $this->user = !empty($this->user) ? $this->user : session('admin');
+        $this->user = !empty($this->user) ? $this->user : session('lea-admin');
         return $this->user;
     }
 
@@ -255,12 +254,20 @@ class RBAC
         return $groups[$uid];
     }
 
-    public function isRole($role)
+    public function isRole($name)
     {
-        $role  = implode('|', $role);
-        $group = $this->getGroups();
-        var_dump($group);
+        if (false !== strpos($name, '|')) {
+            $name = explode('|', $name);
+        } else {
+            $name = [$name];
+        }
 
+        $group = $this->getGroups();
+        if (!empty($group)) {
+            $group = array_column($group, 'name');
+            return !empty(array_intersect($name, $group));
+        }
+        return false;
     }
 
     /**
@@ -360,11 +367,11 @@ class RBAC
         }
 
         $auth_rule = $this->config['auth_rule'];
-        $list      = Cache::remember('sys:cache:menu1:' . $uid, function () use ($auth_rule, $uid, $map) {
+        $list      = Cache::remember('sys:cache:menu:' . $uid, function () use ($auth_rule, $uid, $map) {
             return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
         });
 
-        $crumb = Cache::remember('sys:cache:crumb1:' . $uid, function () use ($auth_rule, $uid, $map) {
+        $crumb = Cache::remember('sys:cache:crumb:' . $uid, function () use ($auth_rule, $uid, $map) {
             unset($map['is_menu']);
             return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
         });

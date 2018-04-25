@@ -1,6 +1,6 @@
 <?php
 
-namespace lea21st;
+namespace app\common\library;
 
 /**
  * 无限分级类

@@ -58,7 +58,7 @@ class UserController extends BaseController
         $id     = $this->request->get('id', 0, 'intval');
         $status = $this->request->get('status', 0, 'intval');
 
-        if ($id > 0 && Db::name('user')->where('id', $id) - setField('status', $status) > 0) {
+        if ($id > 0 && Db::name('user')->where('id', $id)->setField('status', $status) > 0) {
             $this->success('设置成功');
         }
 

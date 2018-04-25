@@ -9,7 +9,7 @@
 // | Author: zhangyajun <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace lea21st;
+namespace app\common\library;
 
 use think\Paginator;
 

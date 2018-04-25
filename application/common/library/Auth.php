@@ -6,9 +6,10 @@
  * Time: 14:00
  */
 
-namespace lea21st;
+namespace app\common\library;
 
-use lea21st\jwt\JWT;
+use app\common\model\User;
+use Firebase\JWT\JWT;
 use think\Db;
 use think\facade\Request;
 
@@ -112,12 +113,21 @@ class Auth
     public function user($jwt = [])
     {
         if ($jwt) {
-            $user = Db::name('user')->cache('user_info_' . $jwt['user_id'], 600)->find($jwt['user_id']);
+            $user = User::where('user_id', $jwt['user_id'])->cache('user:info:' . $jwt['user_id'])->find();
             unset($user['password']);
             $this->user    = $user;
             $this->user_id = $jwt['user_id'];
         }
         return $this->user;
+    }
+
+    /**
+     * 清缓存
+     * @param $user_id
+     */
+    public function clear($user_id)
+    {
+        cache('user:info:' . $user_id ? $user_id : $this->user_id);
     }
 
     /**

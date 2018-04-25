@@ -6,7 +6,7 @@
  * Time: 14:25
  */
 
-namespace lea21st;
+namespace app\common\library;
 
 use think\Db;
 use think\facade\Cache;
@@ -19,7 +19,7 @@ class Config
         $config = Cache::remember('sys:cache:config', function () {
             return self::lists();
         });
-        \think\facade\Config::set($config, 'app');
+        \think\facade\Config::set($config, 'param');
     }
 
     /**

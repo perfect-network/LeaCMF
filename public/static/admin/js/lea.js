@@ -295,14 +295,13 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     $('#refresh').click(function() {
         var self = $(this);
         var length = $('.data-list').length;
-        if (self.attr('disabled')) {
+        if (self.attr('disabled') || !length) {
             return false;
         }
         self.attr('disabled', 'disabled');
         self.find('i').addClass('layui-anim').addClass('layui-anim-rotate').addClass('layui-anim-loop');
         $('.data-list').each(function(index, el) {
             $(this).getList(function() {
-                console.log(index);
                 if (index + 1 >= length) {
                     self.find('i').removeClass('layui-anim').removeClass('layui-anim-rotate').removeClass('layui-anim-loop');
                     self.removeAttr('disabled')

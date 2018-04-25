@@ -6,7 +6,7 @@
  * Time: 10:32
  */
 
-namespace lea21st;
+namespace app\common\library;
 
 class Y
 {

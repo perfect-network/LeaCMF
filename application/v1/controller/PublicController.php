@@ -10,6 +10,6 @@ class PublicController
 {
     public function login()
     {
-        Log::list(1);
+
     }
 }

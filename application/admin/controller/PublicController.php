@@ -9,7 +9,7 @@
 namespace app\admin\controller;
 
 use app\admin\model\Admin;
-use lea21st\RBAC;
+use app\common\library\Hash;
 use think\facade\Request;
 use think\Validate;
 
@@ -33,7 +33,7 @@ class PublicController extends BaseController
             if (!$admin) {
                 $this->error('用户名不存在');
             }
-            if (!password_verify($post['password'], $admin['password'])) {
+            if (!Hash::check($post['password'], $admin['password'])) {
                 $this->error('密码错误');
             }
             if (1 != $admin['status']) {
@@ -45,19 +45,22 @@ class PublicController extends BaseController
             $admin['last_login_ip']   = Request::ip();
             $admin['last_login_time'] = time();
             $admin['token']           = md5($admin['username'] . $admin['password'] . uniqid());
-            if ($admin->save() && RBAC::instance()->login($admin)) {
+            if ($admin->save() && app()->rbac->login($admin)) {
                 cookie('username', $admin['username']);
                 $this->success('登录成功', 'index/index');
             }
             $this->error('登录失败');
         } else {
+            if (app()->user) {
+                return redirect(url('/'));
+            }
             return view();
         }
     }
 
     public function logout()
     {
-        RBAC::instance()->logout();
+        app()->rbac->logout();
         return redirect('login');
     }
 }

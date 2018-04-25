@@ -15,8 +15,8 @@ class ConfigController extends BaseController
     public function initialize()
     {
         parent::initialize();
-        $this->assign('group', config('config_group_list'));
-        $this->assign('type', config('config_type_list'));
+        $this->assign('group', config('param.config_group_list'));
+        $this->assign('type', config('param.config_type_list'));
     }
 
     /**
@@ -62,7 +62,7 @@ class ConfigController extends BaseController
             $this->success('保存成功！');
         } else {
             //所有配置项
-            $group = config('config_group_list');
+            $group = config('param.config_group_list');
             $list  = [];
             foreach ($group as $key => $val) {
                 $temp         = [];
@@ -74,7 +74,7 @@ class ConfigController extends BaseController
 
             $this->assign('list', $list);
             $this->assign('group', $group);
-            $this->assign('type', config('config_type_list'));
+            $this->assign('type', config('param.config_type_list'));
             return view();
         }
 

@@ -40,7 +40,7 @@
                     </a>
                 </li>
                 <li class="layui-nav-item" lay-unselect>
-                    <a href="javascript:;" class="user"><img src="{:get_file_path(rbac()->user()->face)}" class="layui-nav-img">{:rbac()->user()->nickname} <i class="layui-icon layui-icon-more-vertical"></i></a>
+                    <a href="javascript:;" class="user"><img src="{:app()->user->face}" class="layui-nav-img">{:app()->user->nickname} <i class="layui-icon layui-icon-more-vertical"></i></a>
                     <dl class="layui-nav-child">
                         <dd><a href="{:url('info/user')}"><i class="fa  fa-user"></i> 个人信息</a></dd>
                         <hr>
@@ -49,7 +49,7 @@
                 </li>
             </ul>
         </div>
-        <php>$__NAV__ = rbac()->getMenu();</php>
+        <php>$__NAV__ = app()->rbac->getMenu();</php>
         <include file="public/menu" />
         <div class="main layui-body">
             <div class="main-header">

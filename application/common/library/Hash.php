@@ -6,7 +6,7 @@
  * Time: 13:48
  */
 
-namespace lea21st;
+namespace app\common\library;
 
 class Hash
 {

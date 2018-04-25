@@ -24,28 +24,4 @@ return [
 
     //上传的位置,也可以是/home/file定义
     'upload_path'       => env('root_path') . 'public/uploads',
-
-    /**
-     * 七牛云,目前七牛云，也可以自己搭建文件服务器
-     */
-    'AccessKey'         => 'EfIJshCeav_qWcOqoTYaJJs-77P2tXZR-CcWtBKT',
-    'SecretKey'         => 'M19-zOE99o8Z--njaScpog1uxit8ZIYNSXgec0d9',
-
-    'UploadUrl' => 'http://up-z1.qiniu.com',
-
-    'bucket' => [
-        'image' => [
-            'host'    => 'http://ozjv2l07o.bkt.clouddn.com',
-            'private' => false
-        ],
-        'video' => [
-            'host'    => 'http://p2ldt5md7.bkt.clouddn.com',
-            'private' => false
-        ],
-        'file'  => [
-            'host'    => 'http://p2ldkhm4k.bkt.clouddn.com',
-            'private' => false
-        ],
-    ]
-
 ];
