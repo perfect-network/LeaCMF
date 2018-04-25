@@ -11,7 +11,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">封面图</label>
                 <div class="layui-input-block">
-                    {:widget('upload/qiniu',['field'=>'cover','type'=>'image','value'=>(isset($info['cover'])?$info['cover']:'')])}
+                    {:widget('upload/upload',['field'=>'cover','type'=>'image','value'=>(isset($info['cover'])?$info['cover']:'')])}
                     <div class="layui-form-mid layui-word-aux">建议上传大小：200*200</div>
                 </div>
             </div>

@@ -24,26 +24,15 @@ class Upload
         ]);
     }
 
-    public function qiniu($field = 'file', $type = 'image', $value = '')
+    public function upload($field = 'file', $type = 'image', $value = '')
     {
         $param['type']  = $type;
         $param['field'] = $field;
 
         $param['single'] = substr($field, -2) == '[]' ? '' : 1;
 
-        $param['token'] = Qiniu::getToken($type);
-
-        if (!empty($value)) {
-            if (!is_array($value)) {
-                $value = array_filter(array_unique(explode(',', $value)));
-            }
-            $temp = [];
-            foreach ($value as $val) {
-                $temp[$val] = Qiniu::getDownloadUrl($val, $type);
-            }
-            $param['value'] = $temp;
-        }
         $param['time'] = uniqid();
+        $param['value'] = $value;
         return View::fetch('widget/upload', $param);
     }
 }

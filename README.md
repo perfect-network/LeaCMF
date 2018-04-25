@@ -16,11 +16,12 @@ adminlte+layui2.2版进 https://github.com/lea21st/leacmf-thinkphp/tree/2.1
     * 封装了部分方法，开发快速简单，没有文档，看例子
  * 自动高亮菜单，自动面包屑，根据权限自动生成菜单树
  * 集成api验证,开发api和后台都快速方便
+ * 在3.0版本的基础上，加入中间件的支持。取消在钩子里认证用户，放到中间件里了。
   
   
   ## **安装方式**  
   
-leacmf 需要 PHP &gt;= 5.6以上的版本，并且同时需要PHP安装以下扩展
+leacmf 需要 PHP &gt;= 7.1以上的版本，并且同时需要PHP安装以下扩展
 
 ```
 - cURL extension
@@ -46,12 +47,12 @@ composer update
 #### 认证都放在行为里面，`tags.php`查看；
 
 * 后台权限认证方法
-* * `rbac()`获取权限对象，`isRole`('admin|manage')验证是否是admin或者manage角色，
-* * 获取当前登录的用户信息：`rbac()->user();`或者Rbac::instance()->user();
-* 调用上传图片` {:widget('upload/qiniu',['field'=>'cover','type'=>'image','value'=>(isset($info['cover'])?$info['cover']:'')])}`，有图片时自动显示图片。字段名带[]这种字段将可以上传多张
+* * `app()->rbac`获取权限对象，`app()->rbac->isRole`('super admin|admin')验证是否是super admin或者admin角色，
+* * 获取当前登录的用户信息：`app()->rbac->user();`或者`app()->rbac->user;`或者app()->user;
+* 调用上传图片` {:widget('upload/uoload',['field'=>'cover','type'=>'image','value'=>(isset($info['cover'])?$info['cover']:'')])}`，有图片时自动显示图片。字段名带[]这种字段将可以上传多张
 * 调用富文本编辑器使用`{:widget('upload/editor')}`。
  * api认证
- * * 获取当前用户`auth()->user()`;
+ * * 获取当前用户`app()->user`或者`app()->auth->user`;
  
 
 * 更多功能暂时看源码吧，太忙，正式版未出之前不要用于正式环境，默认使用redis作为默认缓存，如未使用redis，在配置缓存中改成其它
