@@ -42,7 +42,7 @@ class Backup extends Command
      */
     protected function export()
     {
-        $config = Config::get('database');
+        $config = Config::get('database.');
 
         $cmd = '/usr/bin/mysqldump -h ' . $config['hostname'] . ' --user ' . $config['username'] . ' --password=' . $config['password'] . ' ' . $config['database'] . ' > ' . $this->getPath() . 'sql_backup_' . date('YmdHis') . '.sql;';
         try {
