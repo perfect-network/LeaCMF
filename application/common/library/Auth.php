@@ -70,18 +70,19 @@ class Auth
     public function token($user_id)
     {
         $time    = time();
-        $JWT_TTL = isset($this->config['JWT_TTL']) ? $this->config['JWT_TTL'] : 7 * 24 * 60;
-        $token   = sha1(uniqid());
+        $JWT_TTL = isset($this->config['JWT_TTL']) ? $this->config['JWT_TTL'] : 7 * 24 * 60 * 60;
+        $token   = sha1($user_id . uniqid());
         $jwt     = [
             "user_id" => $user_id,
             "iat"     => $time,
             "token"   => $token,
             "exp"     => $time + $JWT_TTL
         ];
-        if (Db::name('user')->where('id', $user_id)->setField('token', $token)) {
+        if (Db::name('user')->where('id', $user_id)->cache('user:info:' . $user_id)->setField('token', $token)) {
+            //$this->clear($user_id);
             return JWT::encode($jwt, env('APP_SECRET'));
         }
-
+        return '';
     }
 
     /**
@@ -113,7 +114,7 @@ class Auth
     public function user($jwt = [])
     {
         if ($jwt) {
-            $user = User::where('user_id', $jwt['user_id'])->cache('user:info:' . $jwt['user_id'])->find();
+            $user = User::where('id', $jwt['user_id'])->cache('user:info:' . $jwt['user_id'])->find();
             unset($user['password']);
             $this->user    = $user;
             $this->user_id = $jwt['user_id'];
@@ -127,7 +128,7 @@ class Auth
      */
     public function clear($user_id)
     {
-        cache('user:info:' . $user_id ? $user_id : $this->user_id);
+        cache('user:info:' . $user_id ? $user_id : $this->user_id, null);
     }
 
     /**

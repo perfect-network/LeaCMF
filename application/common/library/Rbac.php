@@ -292,24 +292,19 @@ class Rbac
             return [];
         }
 
-        // 筛选条件
-        $where = [
-            'status' => '1'
-        ];
-
         //循环规则，判断结果。
-        $rulelist = []; //
-        if (!in_array('*', $ids)) {
-            $where['id'] = ['in', $ids];
-        } else {
+        $rulelist = [];
+
+        if (in_array('*', $ids)) {
             return ['*'];
         }
+
         //读取用户组所有权限规则
-        $rules = Db::name($this->config['auth_rule'])->where($where)->field('id,condition,name')->select();
+        $rules = Db::name($this->config['auth_rule'])->whereIn('id', $ids)->where('status', 1)->field('id,condition,name')->select();
 
         foreach ($rules as $rule) {
             //超级管理员无需验证condition
-            if (!empty($rule['condition']) && !in_array('*', $ids)) {
+            if (!empty($rule['condition']) && !$is_super) {
                 //根据condition进行验证
                 $command = preg_replace('/\{(\w*?)\}/', '$user[\'\\1\']', $rule['condition']);
                 @(eval('$condition=(' . $command . ');'));
@@ -360,20 +355,19 @@ class Rbac
         if (is_null($uid)) $uid = $this->getUserId();
 
         $self     = Db::name($this->config['auth_rule'])->field('id,pid,name,title,icon,remark')->where('name', $path)->find();
-        $map      = ['is_menu' => 1];
         $rule_ids = $this->getRuleIds($uid);
-        if ($rule_ids && $rule_ids[0] != '*') {
-            $map['id'] = ['in', $rule_ids];
-        }
+        $is_super = $rule_ids[0] == '*';
 
         $auth_rule = $this->config['auth_rule'];
-        $list      = Cache::remember('sys:cache:menu:' . $uid, function () use ($auth_rule, $uid, $map) {
-            return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
+        $list      = Cache::remember('sys:cache:menu:' . $uid, function () use ($auth_rule, $rule_ids, $is_super) {
+            return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->when(!$is_super, function ($query) use ($rule_ids) {
+                $query->whereIn('id', $rule_ids);
+            })->where('is_menu', 1)->order('pid asc,sort asc,id asc')->select();
         });
-
-        $crumb = Cache::remember('sys:cache:crumb:' . $uid, function () use ($auth_rule, $uid, $map) {
-            unset($map['is_menu']);
-            return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->where($map)->order('pid asc,sort asc,id asc')->select();
+        $crumb = Cache::remember('sys:cache:crumb:' . $uid, function () use ($auth_rule, $rule_ids, $is_super) {
+            return Db::name($auth_rule)->field('id,pid,name,title,icon,sort')->when(!$is_super, function ($query) use ($rule_ids) {
+                $query->whereIn('id', $rule_ids);
+            })->order('pid asc,sort asc,id asc')->select();
         });
 
         $crumb      = Tree::getParents($crumb, $self['id']);
