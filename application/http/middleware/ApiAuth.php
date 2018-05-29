@@ -26,8 +26,8 @@ class ApiAuth
         }
 
         //注入用户
-        Container::getInstance()->bind('auth', $auth);
-        Container::getInstance()->bind('user', $user);
+        app()->auth = $auth;
+        app()->user = $user;
 
         //检查访问权限
         if (!$auth->checkPublicUrl()) {

@@ -34,15 +34,13 @@ class AdminAuth
             }
         }
 
-        $auth = Rbac::instance();
-        Container::getInstance()->bind('rbac', $auth);
-        Container::getInstance()->bind('user', function () use ($auth) {
-            return $auth->user();
-        });
+        //注入用户
+        app()->rbac = Rbac::instance();
+        app()->user = Rbac::instance()->user();
 
-        if (!$auth->notNeedLogin()) {
-            $auth->user() || $this->redirect('public/login');
-            $auth->check() || $this->error('您无权限操作');
+        if (!Rbac::instance()->notNeedLogin()) {
+            Rbac::instance()->user() || $this->redirect('public/login');
+            Rbac::instance()->check() || $this->error('您无权限操作');
         }
 
         return $next($request);
