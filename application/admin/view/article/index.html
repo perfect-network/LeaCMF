@@ -4,7 +4,7 @@
         <form class="layui-form inline-form">
             <div class="pull-right">
                 <div class="layui-inline">
-                    <select name="status" lay-filter="data-list">
+                    <select name="cate" lay-filter="data-list">
                         <option value="">选择栏目</option>
                         <volist name="cate" id="vo">
                             <option value="{$key}">{$vo}</option>
@@ -22,7 +22,7 @@
                     <input class="layui-input" name="keyword" placeholder="输入关键词搜索">
                 </div>
                 <div class="layui-inline">
-                    <input class="layui-input laydate-range" name="keyword" placeholder="发布时间区间">
+                    <input class="layui-input laydate-range" name="range_time" placeholder="发布时间区间">
                 </div>
                 <div class="layui-inline">
                     <button class="layui-btn layui-btn-sm layui-btn-normal search"><i class="layui-icon">&#xe615;</i></button>

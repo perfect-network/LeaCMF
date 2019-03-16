@@ -15,7 +15,7 @@ class FileController extends BaseController
 
     public function upload(Request $request)
     {
-        $type = $request->param('type', 'image');
+        $type = $request->get('type', 'image');
         $file = $request->file('file');
         if (empty($file)) {
             return json(['status' => 5, 'msg' => '文件不存在']);

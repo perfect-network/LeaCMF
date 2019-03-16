@@ -51,7 +51,7 @@ class PublicController extends BaseController
             }
             $this->error('登录失败');
         } else {
-            if (app()->user) {
+            if (!empty(app()->user)) {
                 return redirect(url('/'));
             }
             return view();

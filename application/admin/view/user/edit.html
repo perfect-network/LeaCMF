@@ -15,7 +15,6 @@
         <div class="layui-form-item video">
             <label class="layui-form-label">头像</label>
             <div class="layui-input-block">
-                {:widget('upload/qiniu',['field'=>'face','type'=>'image','value'=>(isset($user['face'])?$user['face']:'')])}
             </div>
         </div>
         <input type="hidden" name="id" value="{$Think.get.id}">

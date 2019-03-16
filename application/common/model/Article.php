@@ -8,6 +8,7 @@
 
 namespace app\common\model;
 
+use app\common\library\Rbac;
 use lea21st\Auth;
 use think\Model;
 
@@ -39,7 +40,7 @@ class Article extends Model
      */
     protected function setCreateAidAttr()
     {
-        return Auth::instance()->getUserId();
+        return Rbac::instance()->getUserId();
     }
 
 }

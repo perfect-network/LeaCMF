@@ -1,4 +1,4 @@
-layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports) {
+layui.define(['layer', 'form', 'element', 'laydate'], function (exports) {
     var layer = layui.layer,
         element = layui.element,
         table = layui.table,
@@ -9,7 +9,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     var lea = {};
 
     //导航菜单
-    $('.aside li>a').click(function(e) {
+    $('.aside li>a').click(function (e) {
         e.stopPropagation();
         var next = $(this).next('dl');
         if (!$(this).next('dl').length) {
@@ -25,7 +25,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
         return false;
     });
     //侧边隐藏
-    $('.ajax-flexible').click(function() {
+    $('.ajax-flexible').click(function () {
         var href = $(this).attr('href');
         var dom = $('.layui-layout-admin');
         var menu = dom.attr('layui-layout') == 'closed' ? 'open' : 'closed';
@@ -35,7 +35,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     });
 
     //表格初始化
-    $.fn.getList = function(callback, history) {
+    $.fn.getList = function (callback, history) {
         var that = this;
         var url = that.data('url');
         if (!url) {
@@ -54,16 +54,16 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
                 dataType: 'html',
                 data: param,
             })
-            .done(function(html) {
+            .done(function (html) {
                 that.find('.data').empty().html(html);
                 form.render();
                 that.data('page', page);
             })
-            .fail(function(xhr) {
+            .fail(function (xhr) {
                 console.log(xhr.responseText);
                 that.find('.data').empty().html('<p><i class="fa fa-warning"></i> 服务器异常，请稍后再试~</p>');
             })
-            .always(function() {
+            .always(function () {
                 if (typeof callback === 'function') {
                     callback();
                 }
@@ -74,28 +74,28 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     }
 
     //点击搜索
-    $(document).on('click', '.search', function(event) {
+    $(document).on('click', '.search', function (event) {
         event.preventDefault();
         var that = $(this);
         that.html('<i class="layui-icon layui-anim layui-anim-rotate layui-anim-loop">&#xe63d;</i>');
-        that.closest('.data-list').getList(function() {
+        that.closest('.data-list').getList(function () {
             that.html('<i class="layui-icon">&#xe615;</i>');
         });
 
     });
     //自动搜索
-    form.on('select(data-list)', function(data) {
+    form.on('select(data-list)', function (data) {
         $(data.elem).closest('.data-list').getList();
     });
 
     //分页
-    $(document).on('click', '.layui-laypage-page>a', function() {
+    $(document).on('click', '.layui-laypage-page>a', function () {
         var page = $(this).attr('lay-page');
         $(this).closest('.data-list').data('page', page).getList();
         return false;
     });
     //分页跳转
-    $(document).on('click', '.layui-laypage-page .layui-laypage-btn', function() {
+    $(document).on('click', '.layui-laypage-page .layui-laypage-btn', function () {
         var dom = $(this).closest('.data-list');
         var input = $(this).prev('input');
         var page = input.val();
@@ -112,13 +112,13 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     });
 
     //快速排序
-    $(document).on('change', '.data-list .layui-input', function(event) {
+    $(document).on('change', '.data-list .layui-input', function (event) {
         event.preventDefault();
         var self = $(this);
         var url = self.attr('href') || self.data('url');
         if (self.val() != self.attr('data-val')) {
-            $.post(url, self.serialize(), function(res) {
-                if (res.code != 1) {
+            $.post(url, self.serialize(), function (res) {
+                if (res.code == 1) {
                     layer.msg(lea2msg(res.msg));
                     self.closest('.data-list').getList();
                 } else {
@@ -133,13 +133,13 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
      * 异步提交表单
      * 表单验证
      */
-    $(document).on('click', '.ajax-form', function(event) {
+    $(document).on('click', '.ajax-form', function (event) {
         event.preventDefault();
         var self = $(this);
         if (self.attr('disabled')) return false;
         var url = self.attr('href') || self.data('url');
         if (!url) return;
-        $.get(url, function(html) {
+        $.get(url, function (html) {
             if (typeof html === 'object') {
                 layer.msg(html.msg);
                 return false;
@@ -151,19 +151,19 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
                 scrollbar: false,
                 maxWidth: '80%',
                 btn: ['确定', '取消'],
-                yes: function(index, layero) {
+                yes: function (index, layero) {
                     if ($(layero).find('.layui-layer-btn0').attr('disabled')) {
                         return false;
                     }
                     $(layero).find('.layui-layer-btn0').attr('disabled', 'disabled');
                     var _form = $(layero).find('form');
-                    $.post(_form.attr('action'), _form.serialize(), function(res) {
+                    $.post(_form.attr('action'), _form.serialize(), function (res) {
                         if (res.code == 1) {
                             self.closest('.data-list').getList();
                             layer.msg(res.msg, {
                                 time: 1000,
                                 icon: 6
-                            }, function() {
+                            }, function () {
                                 layer.close(index);
                             });
                         } else {
@@ -177,10 +177,10 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
 
                     }, 'json');
                 },
-                btn2: function(index) {
+                btn2: function (index) {
                     layer.close(index);
                 },
-                success: function() {
+                success: function () {
                     form.render();
                 }
             }, 'html');
@@ -192,7 +192,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
      * 异步url请求
      * 用户简单操作，如删除
      */
-    $(document).on('click', '.ajax-get', function(event) {
+    $(document).on('click', '.ajax-get', function (event) {
         event.preventDefault();
         var self = $(this);
         var url = self.attr('href') || self.data('url');
@@ -200,15 +200,15 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
         if (!url) return false;
 
         if (self.attr('confirm')) {
-            layer.confirm('您确定要 <span style="color:#f56954">' + title + '</span> 吗？', function(index) {
-                $.get(url, function(res) {
+            layer.confirm('您确定要 <span style="color:#f56954">' + title + '</span> 吗？', function (index) {
+                $.get(url, function (res) {
                     layer.msg(res.msg);
                     self.closest('.data-list').getList();
                 });
             });
 
         } else {
-            $.get(url, function(res) {
+            $.get(url, function (res) {
                 var message = self.attr('msg') || 1;
                 if (res.code == 0 || message == 1) {
                     layer.msg(res.msg);
@@ -221,7 +221,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
 
 
     //监听table swtich操作
-    form.on('switch(table-status)', function(obj) {
+    form.on('switch(table-status)', function (obj) {
         var self = $(obj.elem);
         var table = self.closest('.data-table').data('id');
         $.ajax({
@@ -229,13 +229,13 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
                 type: 'post',
                 dataType: 'json'
             })
-            .done(function(data) {
-                if (data.code != 0) {
+            .done(function (data) {
+                if (data.code != 1) {
                     layer.msg(data.msg);
                     $(table).reload();
                 }
             })
-            .fail(function(xhr) {
+            .fail(function (xhr) {
                 layer.msg('服务器异常，请稍后重试~');
                 console.log(xhr.responseText);
                 $(table).reload();
@@ -245,7 +245,7 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
     /**
      *监听提普通交
      */
-    form.on('submit(layform)', function(data) {
+    form.on('submit(layform)', function (data) {
         var self = $(data.elem);
         if (self.attr('disabled')) {
             return false;
@@ -257,12 +257,12 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
                 dataType: 'json',
                 data: data.field
             })
-            .done(function(res) {
-                if (res.code == 0) {
+            .done(function (res) {
+                if (res.code == 1) {
                     layer.msg(res.msg, {
                         time: 1000,
                         icon: 6
-                    }, function() {
+                    }, function () {
                         if (res.url) window.location.href = res.url;
                     });
                 } else {
@@ -272,27 +272,28 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
                     });
                 }
             })
-            .fail(function() {
+            .fail(function () {
                 layer.msg('服务器异常', {
                     time: 1500,
                     icon: 5
                 });
             })
-            .always(function() {
+            .always(function () {
                 self.removeAttr('disabled');
             });
         return false;
     });
 
-    $('.laydate-range').each(function() {
+    $('.laydate-range').each(function () {
         laydate.render({
             elem: this,
             type: 'date',
+            trigger: 'click',
             range: '~'
         });
     });
 
-    $('#refresh').click(function() {
+    $('#refresh').click(function () {
         var self = $(this);
         var length = $('.data-list').length;
         if (self.attr('disabled') || !length) {
@@ -300,8 +301,8 @@ layui.define(['layer', 'form', 'element', 'table', 'laydate'], function(exports)
         }
         self.attr('disabled', 'disabled');
         self.find('i').addClass('layui-anim').addClass('layui-anim-rotate').addClass('layui-anim-loop');
-        $('.data-list').each(function(index, el) {
-            $(this).getList(function() {
+        $('.data-list').each(function (index, el) {
+            $(this).getList(function () {
                 if (index + 1 >= length) {
                     self.find('i').removeClass('layui-anim').removeClass('layui-anim-rotate').removeClass('layui-anim-loop');
                     self.removeAttr('disabled')

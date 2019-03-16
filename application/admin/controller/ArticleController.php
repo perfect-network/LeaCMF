@@ -24,27 +24,17 @@ class ArticleController extends BaseController
     public function index()
     {
         if ($this->request->isAjax()) {
-            $cate    = $this->request->post('cate', 0, 'intval');
-            $status  = $this->request->post('status', -1, 'intval');
             $keyword = $this->request->post('keyword', '', 'trim');
-
             $model = Db::name('article')->where('status', 'in', '0,1');
-            if ($cate != '') {
-                $model->where('cate', $cate);
-            }
-            if ($status > -1) {
-                $model->where('status', $status);
-            }
             if ($keyword) {
                 $model->where('title', 'like', '%' . $keyword . '%');
             }
             $list = $model->order('id desc')->paginate(10);
             return view('index_list', [
                 'list' => $list,
-                'tab'  => $cate
+                'cate' => Article::$cate,
             ]);
         } else {
-            $this->assign('tab', input('tab', 3));
             return view();
         }
     }
@@ -58,6 +48,7 @@ class ArticleController extends BaseController
         if ($this->request->isPost()) {
             $Article         = new Article();
             $post            = $this->request->post();
+            $post['cate']    = 1;
             $post['content'] = $this->request->post('content', '', null);
             if ($Article->allowField(true)->save($post) === false) {
                 $this->error($Article->getError());

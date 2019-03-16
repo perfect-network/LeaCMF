@@ -99,7 +99,7 @@
                 // 文件上传成功，给item添加成功class, 用样式标记上传成功。
                 uploader.on('uploadSuccess', function (file, response) {
                     $('#' + file.id).addClass('upload-state-done');
-                    $('#' + file.id).append('<input type="hidden" name="{$field}" value="' + response.key + '">');
+                    $('#' + file.id).append('<input type="hidden" name="{$field}" value="' + response.data.src + '">');
                 });
                 // 文件上传失败，显示上传出错。
                 uploader.on('uploadError', function (file) {
@@ -169,7 +169,7 @@
                 // 文件上传成功，给item添加成功class, 用样式标记上传成功。
                 uploader.on('uploadSuccess', function (file, response) {
                     if (single) {
-                        $('#' + file.id).html('<p class="text-yellow">' + file.name + ' ( 上传成功 ) </p><input type="hidden" name="{$field}" value="' + response.key + '">');
+                        $('#' + file.id).html('<p class="text-yellow">' + file.name + ' ( 上传成功 ) </p><input type="hidden" name="{$field}" value="' + response.data.src + '">');
                     } else {
                         $('#' + file.id).append('<p class="text-yellow">' + file.name + ' ( 上传成功 ) <a href="javascript:;" title="删除" class="delete"><i class="fa fa-times"></i></a></p><input type="hidden" name="{$field}" value="' + response.key + '">');
                     }
